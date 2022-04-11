@@ -1,25 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
+import {Nav} from "./components/Navbar"
+import { Footer } from './components/Footer';
+import { MantineProvider, ColorSchemeProvider, ColorScheme, useMantineColorScheme } from '@mantine/core';
+import { useToggle, useLocalStorage, useHotkeys } from '@mantine/hooks';
 
 function App() {
+  const [colorScheme, setColorScheme] = useLocalStorage<"dark"|"light">({
+    key: 'mantine-color-scheme',
+    defaultValue: 'dark',
+  });
+ const [mode, toggleMode] = useToggle<"dark"|"light">(colorScheme,["dark","light"]); 
+  const toggleNav = () =>{
+    toggleMode();
+    setColorScheme(mode);
+  };
+  useHotkeys([['c', () =>{
+    toggleNav()
+  }]]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleMode}>
+    <MantineProvider theme={{colorScheme}}>
+      <Nav mode={colorScheme} toggleNav={toggleNav}/>
+      <Footer/>
+    </MantineProvider>
+    </ColorSchemeProvider>
   );
 }
 
